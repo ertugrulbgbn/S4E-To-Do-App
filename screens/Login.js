@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, Linking, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert, Dimensions } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 const hiddenPasswordImage = require('../assets/images/hidden.png'); 
 const showPasswordImage = require('../assets/images/show.png'); 
-const log19Image = require('../assets/images/log19.png'); 
-const linkedinImage = require('../assets/images/linkedin.png');
-const twitterImage = require('../assets/images/twitter.png'); 
-const webpageImage = require('../assets/images/webpage.png');
-const rafikiImage = require('../assets/images/rafiki.png');
+const googleImage = require('../assets/images/google.png');
+const linkedinImage = require('../assets/images/linkedins.png');
+const topLeftImage = require('../assets/images/s4el.png'); 
 
 const users = [
   { email: 'ertugrulbagbancii@gmail.com', username: 'Ertugrul', password: 'ertu1234' }, 
@@ -19,6 +18,7 @@ export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
 
   const handleSignup = () => {
     navigation.navigate('SignUp');
@@ -33,7 +33,7 @@ export default function Login({ navigation }) {
     if (user) {
       navigation.navigate('Dashboard', { username: user.username });
     } else {
-      Alert.alert('Login Failed', 'Invalid email or password');
+      Alert.alert('Login Failed', 'Invalid Login');
     }
   };
 
@@ -41,63 +41,83 @@ export default function Login({ navigation }) {
     setShowPassword(!showPassword);
   };
 
-  const openLink = (url) => {
-    Linking.openURL(url).catch((err) => console.error("Couldn't load page", err));
+  const keyboardDidShow = (event) => {
+    const keyboardHeight = event.endCoordinates.height;
+    const windowHeight = Dimensions.get('window').height;
+    const offset = windowHeight - keyboardHeight;
+    setKeyboardOffset(offset);
   };
+
+  const keyboardDidHide = () => {
+    setKeyboardOffset(0);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      setEmail('');
+      setPassword('');
+    }, [])
+  );
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scrollView}> 
-        <Image source={log19Image} style={styles.logoImage} /> 
-        <Text style={styles.welcomeText}>Welcome</Text> 
-        <Image source={rafikiImage} style={styles.rafikiImage} /> 
+      <ScrollView 
+        contentContainerStyle={[styles.scrollView, { paddingBottom: keyboardOffset }]}
+        keyboardShouldPersistTaps="handled"
+      > 
+        <Image source={topLeftImage} style={styles.topLeftImage} />
 
-        <TextInput
-          style={styles.textInput}
-          placeholder="Enter your Email"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-        />
+        <Text style={styles.signInText}>Sign In</Text> 
+        <Text style={styles.signUpText}>
+          Don't have an account? <Text style={styles.signUpLink} onPress={handleSignup}>Sign Up</Text>
+        </Text>
+
+        <View style={styles.emailContainer}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Email Address"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            selectionColor="#637381" 
+          />
+        </View>
 
         <View style={styles.passwordContainer}>
           <TextInput
             style={styles.passwordInput}
-            placeholder="Enter Password"
+            placeholder="Password"
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
+            selectionColor="#637381" 
           />
           <TouchableOpacity onPress={toggleShowPassword} style={styles.showPasswordButton}>
             <Image source={showPassword ? showPasswordImage : hiddenPasswordImage} style={styles.passwordImage} />
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity onPress={handleForgetPassword}>
-          <Text style={styles.forgetPasswordText}>Forgot password?</Text>
-        </TouchableOpacity>
+        <View style={styles.forgotPasswordContainer}>
+          <TouchableOpacity onPress={handleForgetPassword}>
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity onPress={handleLogin}>
+        <TouchableOpacity onPress={handleLogin} style={styles.loginButtonContainer}>
           <Text style={styles.loginButton}>Login</Text>
         </TouchableOpacity>
 
-        <Text style={styles.signUpText}>
-          Don’t have an account? <Text style={styles.signUpLink} onPress={handleSignup}>Sign Up</Text>
-        </Text>
+        <TouchableOpacity onPress={handleLogin} style={styles.loginGoogleButtonContainer}>
+          <Image source={googleImage} style={styles.socialImage} />
+          <Text style={styles.loginGoogleButton}>Login With Google</Text>
+        </TouchableOpacity>
 
-        <View style={styles.socialMediaContainer}>
-          <TouchableOpacity onPress={() => openLink('https://securityforeveryone.com/')}>
-            <Image source={webpageImage} style={styles.socialMediaIcon} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => openLink('https://www.linkedin.com/company/secforeveryone/')}>
-            <Image source={linkedinImage} style={styles.socialMediaIcon} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => openLink('https://twitter.com/secforeveryone')}>
-            <Image source={twitterImage} style={styles.socialMediaIcon} />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={handleLogin} style={styles.loginLinkedinButtonContainer}>
+          <Image source={linkedinImage} style={styles.socialImage} />
+          <Text style={styles.loginLinkedinButton}>Login With LinkedIn</Text>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -112,51 +132,41 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
-    backgroundColor: '#f0f4f3',
+    backgroundColor: '#ffffff',
   },
-  logoImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 157,
-    height: 157,
-    resizeMode: 'contain',
-  },
-  welcomeText: {
-    fontSize: 28,
-    marginBottom: -30,
-    marginTop: 25,
-    fontFamily: 'CustomFont-Regular',
-  },
-  rafikiImage: {
-    width: 350,
-    height: 350,
-    marginBottom: -10,
-    alignSelf: 'center',
+  signInText: {
+    fontSize: 25,
+    marginBottom: -5,
+    marginTop: 40,
+    fontFamily: 'CustomFont-SemiBold',
+    alignSelf: 'flex-start',
+    marginLeft: 24, 
   },
   textInput: {
     backgroundColor: '#fff',
     height: 50,
-    width: '100%',
-    borderColor: '#fff',
+    width: '100%', 
+    borderColor: '#d3dade',
     borderWidth: 1,
     paddingHorizontal: 15,
+    marginTop: 20,
     marginBottom: 20,
-    borderRadius: 30,
-    elevation: 1,
+    borderRadius: 10,
     fontFamily: 'CustomFont-Light',
+  },
+  emailContainer: {
+    width: '88%', 
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
-    borderColor: '#fff',
+    width: '88%',
+    borderColor: '#d3dade',
     borderWidth: 1,
     paddingHorizontal: 15,
     marginBottom: 10,
-    borderRadius: 30,
+    borderRadius: 10,
     backgroundColor: '#fff',
-    elevation: 2,
   },
   passwordInput: {
     fontFamily: 'CustomFont-Light',
@@ -169,42 +179,95 @@ const styles = StyleSheet.create({
   passwordImage: {
     width: 20,
     height: 20,
-    tintColor: '#50c2c9',
+    tintColor: '#637381',
   },
-  forgetPasswordText: {
+  forgotPasswordContainer: {
+    width: '88%',
+    alignItems: 'flex-end',
+  },
+  forgotPasswordText: {
     fontFamily: 'CustomFont-Light',
-    marginTop: 20,
+    marginTop: 14,
     marginBottom: 20,
-    color: '#50c2c9',
+    color: '#121e2a',
+    textDecorationLine: 'underline',
   },
   loginButton: {
-    marginTop: 10,
-    color: 'white',
-    fontFamily: 'CustomFont-Regular',
-    fontSize: 17,
+    color: '#ffffff',
+    fontFamily: 'CustomFont-Bold',
+    fontSize: 16,
     paddingVertical: 15,
-    paddingHorizontal: 150,
-    borderRadius: 15,
+    textAlign: 'center',
+  },
+  loginButtonContainer: {
+    marginTop: 4,
+    width: '88%',
+    borderRadius: 10,
     overflow: 'hidden',
-    textAlign: 'center', 
-    elevation: 2,
-    backgroundColor: '#50c2c9',
+    elevation: 1,
+    backgroundColor: '#121e2a',
+  },
+  socialImage: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
+  },
+  loginGoogleButton: {
+    color: '#121e2a',
+    fontFamily: 'CustomFont-Bold',
+    fontSize: 16,
+    paddingVertical: 15,
+    textAlign: 'center',
+  },
+  loginGoogleButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+    width: '88%',
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: '#ffffff',
+    borderColor: '#d3dade',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+  },
+  loginLinkedinButton: {
+    color: '#121e2a',
+    fontFamily: 'CustomFont-Bold',
+    fontSize: 16,
+    paddingVertical: 15,
+    textAlign: 'center',
+  },
+  loginLinkedinButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+    width: '88%',
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: '#ffffff',
+    borderColor: '#d3dade',
+    borderWidth: 1,
+    paddingHorizontal: 10,
   },
   signUpText: {
     fontFamily: 'CustomFont-Light',
     marginTop: 20,
     fontSize: 14,
+    alignSelf: 'flex-start',
+    marginLeft: 24, 
   },
   signUpLink: {
-    color: '#50c2c9',
+    fontFamily: 'CustomFont-SemiBold', 
   },
-  socialMediaContainer: {
-    flexDirection: 'row',
-    marginTop: 30,
-  },
-  socialMediaIcon: {
-    width: 26,
-    height: 26,
-    marginHorizontal: 15,
+  topLeftImage: {
+    position: 'absolute',
+    top: 30,
+    left: 50,
+    width: 125,
+    height: 125,
+    resizeMode: 'contain',
   },
 });

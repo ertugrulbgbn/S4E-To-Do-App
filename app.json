@@ -4,10 +4,10 @@
     "slug": "S4E",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icons.png",
+    "icon": "./assets/images/BeyazS4E.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/splash2.png",
+      "image": "./assets/images/splashs4e.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -16,13 +16,13 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icons.png",
+        "foregroundImage": "./assets/images/BeyazS4E.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.yourappname.S4E" 
     },
     "web": {
-      "favicon": "./assets/images/icons.png"
+      "favicon": "./assets/images/BeyazS4E.png"
     }
   }
 }

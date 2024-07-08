@@ -16,10 +16,15 @@ export default function App() {
 
   const loadFonts = async () => {
     await Font.loadAsync({                                                   
-      'CustomFont-Regular': require('./assets/fonts/Poppins-SemiBold.ttf'),   
-      'CustomFont-Light': require('./assets/fonts/Poppins-Light.ttf'),
-      'CustomFont-ExtraBold': require('./assets/fonts/Poppins-ExtraBold.ttf'),
-      'CustomFont-SemiBold': require('./assets/fonts/Poppins-SemiBold.ttf'),
+      'CustomFont-Black': require('./assets/fonts/Inter-Black.ttf'),   
+      'CustomFont-Bold': require('./assets/fonts/Inter-Bold.ttf'),
+      'CustomFont-ExtraBold': require('./assets/fonts/Inter-ExtraBold.ttf'),
+      'CustomFont-ExtraLight': require('./assets/fonts/Inter-ExtraLight.ttf'),
+      'CustomFont-Light': require('./assets/fonts/Inter-Light.ttf'),
+      'CustomFont-Medium': require('./assets/fonts/Inter-Medium.ttf'),
+      'CustomFont-Regular': require('./assets/fonts/Inter-Regular.ttf'),
+      'CustomFont-SemiBold': require('./assets/fonts/Inter-SemiBold.ttf'),
+      'CustomFont-Thin': require('./assets/fonts/Inter-Thin.ttf'),
     });
     setFontsLoaded(true);
   };
