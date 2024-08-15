@@ -1,55 +1,42 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Alert, Dimensions } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
-const hiddenPasswordImage = require('../assets/images/hidden.png'); 
-const showPasswordImage = require('../assets/images/show.png'); 
+const hiddenPasswordImage = require('../assets/images/hidden.png');
+const showPasswordImage = require('../assets/images/show.png');
 const googleImage = require('../assets/images/google.png');
 const linkedinImage = require('../assets/images/linkedins.png');
-const topLeftImage = require('../assets/images/s4el.png'); 
-
-const users = [
-  { email: 'ertugrulbagbancii@gmail.com', username: 'Ertugrul', password: 'ertu1234' }, 
-  { email: 'alieren@gmail.com', username: 'Ali Eren', password: 'ali1234' },  
-  { email: 's210444022@stu.thk.edu.tr', username: '210444022', password: '1234' }
-];
+const topLeftImage = require('../assets/images/s4es.png');
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [keyboardOffset, setKeyboardOffset] = useState(0);
-
-  const handleSignup = () => {
-    navigation.navigate('SignUp');
-  };
 
   const handleForgetPassword = () => {
     navigation.navigate('Forget');
   };
 
+  const checkPasswordValidity = (password) => {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    return null;
+  };
+
   const handleLogin = () => {
-    const user = users.find(u => u.email === email && u.password === password);
-    if (user) {
-      navigation.navigate('Dashboard', { username: user.username });
+    const checkPassword = checkPasswordValidity(password);
+    if (!checkPassword) {
+      // Mocking a successful login response
+      Alert.alert('Login Successful', 'You have logged in successfully!');
+      navigation.replace('Main');
     } else {
-      Alert.alert('Login Failed', 'Invalid Login');
+      Alert.alert('Invalid Password', checkPassword);
     }
   };
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
-  };
-
-  const keyboardDidShow = (event) => {
-    const keyboardHeight = event.endCoordinates.height;
-    const windowHeight = Dimensions.get('window').height;
-    const offset = windowHeight - keyboardHeight;
-    setKeyboardOffset(offset);
-  };
-
-  const keyboardDidHide = () => {
-    setKeyboardOffset(0);
   };
 
   useFocusEffect(
@@ -60,28 +47,19 @@ export default function Login({ navigation }) {
   );
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <ScrollView 
-        contentContainerStyle={[styles.scrollView, { paddingBottom: keyboardOffset }]}
-        keyboardShouldPersistTaps="handled"
-      > 
+    <View style={styles.container}>
+      <View style={styles.scrollView}>
         <Image source={topLeftImage} style={styles.topLeftImage} />
 
-        <Text style={styles.signInText}>Sign In</Text> 
-        <Text style={styles.signUpText}>
-          Don't have an account? <Text style={styles.signUpLink} onPress={handleSignup}>Sign Up</Text>
-        </Text>
+        <Text style={styles.signInText}>Sign In</Text>
 
         <View style={styles.emailContainer}>
           <TextInput
             style={styles.textInput}
             placeholder="Email Address"
             value={email}
-            onChangeText={(text) => setEmail(text)}
-            selectionColor="#637381" 
+            onChangeText={setEmail}
+            selectionColor="#637381"
           />
         </View>
 
@@ -92,7 +70,7 @@ export default function Login({ navigation }) {
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
-            selectionColor="#637381" 
+            selectionColor="#637381"
           />
           <TouchableOpacity onPress={toggleShowPassword} style={styles.showPasswordButton}>
             <Image source={showPassword ? showPasswordImage : hiddenPasswordImage} style={styles.passwordImage} />
@@ -118,46 +96,51 @@ export default function Login({ navigation }) {
           <Image source={linkedinImage} style={styles.socialImage} />
           <Text style={styles.loginLinkedinButton}>Login With LinkedIn</Text>
         </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
   },
   scrollView: {
-    flexGrow: 1,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
-    backgroundColor: '#ffffff',
   },
   signInText: {
+    position: 'absolute',
+    top: 255,
+    left: 45,
     fontSize: 25,
-    marginBottom: -5,
-    marginTop: 40,
+    marginBottom: 0,
     fontFamily: 'CustomFont-SemiBold',
     alignSelf: 'flex-start',
-    marginLeft: 24, 
+  },
+  emailContainer: {
+    position: 'absolute',
+    top: 305,
+    width: '88%',
+    marginLeft: 20, 
   },
   textInput: {
     backgroundColor: '#fff',
     height: 50,
-    width: '100%', 
+    width: '100%',
     borderColor: '#d3dade',
     borderWidth: 1,
     paddingHorizontal: 15,
-    marginTop: 20,
-    marginBottom: 20,
+    marginBottom: 10,
     borderRadius: 10,
     fontFamily: 'CustomFont-Light',
   },
-  emailContainer: {
-    width: '88%', 
-  },
   passwordContainer: {
+    position: 'absolute',
+    top: 375,
     flexDirection: 'row',
     alignItems: 'center',
     width: '88%',
@@ -167,6 +150,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 10,
     backgroundColor: '#fff',
+    marginLeft: 20, 
   },
   passwordInput: {
     fontFamily: 'CustomFont-Light',
@@ -182,8 +166,11 @@ const styles = StyleSheet.create({
     tintColor: '#637381',
   },
   forgotPasswordContainer: {
+    position: 'absolute',
+    top: 430,
     width: '88%',
     alignItems: 'flex-end',
+    marginLeft: 20, 
   },
   forgotPasswordText: {
     fontFamily: 'CustomFont-Light',
@@ -192,6 +179,16 @@ const styles = StyleSheet.create({
     color: '#121e2a',
     textDecorationLine: 'underline',
   },
+  loginButtonContainer: {
+    position: 'absolute',
+    top: 480,
+    width: '88%',
+    borderRadius: 10,
+    overflow: 'hidden',
+    elevation: 1,
+    backgroundColor: '#121e2a',
+    marginLeft: 20,
+  },
   loginButton: {
     color: '#ffffff',
     fontFamily: 'CustomFont-Bold',
@@ -199,18 +196,20 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     textAlign: 'center',
   },
-  loginButtonContainer: {
-    marginTop: 4,
+  loginGoogleButtonContainer: {
+    position: 'absolute',
+    top: 550,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     width: '88%',
     borderRadius: 10,
     overflow: 'hidden',
-    elevation: 1,
-    backgroundColor: '#121e2a',
-  },
-  socialImage: {
-    width: 20,
-    height: 20,
-    marginRight: 8,
+    backgroundColor: '#ffffff',
+    borderColor: '#d3dade',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    marginLeft: 20,
   },
   loginGoogleButton: {
     color: '#121e2a',
@@ -219,11 +218,12 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     textAlign: 'center',
   },
-  loginGoogleButtonContainer: {
+  loginLinkedinButtonContainer: {
+    position: 'absolute',
+    top: 620,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
     width: '88%',
     borderRadius: 10,
     overflow: 'hidden',
@@ -231,6 +231,7 @@ const styles = StyleSheet.create({
     borderColor: '#d3dade',
     borderWidth: 1,
     paddingHorizontal: 10,
+    marginLeft: 20,
   },
   loginLinkedinButton: {
     color: '#121e2a',
@@ -239,35 +240,18 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     textAlign: 'center',
   },
-  loginLinkedinButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 16,
-    width: '88%',
-    borderRadius: 10,
-    overflow: 'hidden',
-    backgroundColor: '#ffffff',
-    borderColor: '#d3dade',
-    borderWidth: 1,
-    paddingHorizontal: 10,
-  },
-  signUpText: {
-    fontFamily: 'CustomFont-Light',
-    marginTop: 20,
-    fontSize: 14,
-    alignSelf: 'flex-start',
-    marginLeft: 24, 
-  },
-  signUpLink: {
-    fontFamily: 'CustomFont-SemiBold', 
+  socialImage: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
   },
   topLeftImage: {
     position: 'absolute',
     top: 30,
     left: 50,
-    width: 125,
-    height: 125,
+    width: 128,
+    height: 128,
     resizeMode: 'contain',
+    alignSelf: 'flex-start',
   },
 });

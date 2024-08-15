@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { sendForgetPasswordMail } from '../api/user_api'; // Import the new API function
 
 const loginLightSvg = (
   <Svg width={374} height={125} viewBox="0 0 1274 1025" fill="none">
@@ -16,15 +17,42 @@ const loginLightSvg = (
 
 export default function Forget({ navigation }) {
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(''); // State to manage success message
+
+  const validateEmail = (text) => {
+    setEmail(text);
+    if (text === '') {
+      setError('Email is required');
+    } else if (!text.includes('@') || text.indexOf('@') === 0) {
+      setError('Email must be a valid email address');
+    } else {
+      setError('');
+    }
+  };
 
   const handleBackToLogin = () => {
     navigation.navigate('Login');
   };
 
-  const handleResetPassword = () => {
-    // Implement your password reset logic here
-    alert(`Reset password functionality for ${email}`);
+  const handleResetPassword = async () => {
+    if (email === '') {
+
+    } else if (!email.includes('@') || email.indexOf('@') === 0) {
+
+    } else {
+      try {
+        const response = await sendForgetPasswordMail(email);
+        if (response.success) {
+
+          setEmail(''); 
+
+        }
+      } catch (err) {
+      }
+    }
   };
+  
 
   return (
     <View style={styles.container}>
@@ -32,14 +60,19 @@ export default function Forget({ navigation }) {
       <Text style={styles.title}>Forgot your password?</Text>
       <Text style={styles.title2}>Fill the form to reset your password</Text>
       
-      <TextInput 
-        style={styles.textInput} 
-        placeholder="Email" 
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+      <View style={styles.inputContainer}>
+        <TextInput 
+          style={[styles.textInput, { borderColor: error ? '#d8363c' : '#d3dade' }]} 
+          placeholder="Email" 
+          value={email}
+          onChangeText={validateEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          selectionColor="#657581"
+        />
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        {success ? <Text style={styles.successText}>{success}</Text> : null}
+      </View>
       
       <TouchableOpacity onPress={handleResetPassword} style={styles.resetButton}>
         <Text style={styles.resetText}>Send Reset Link</Text>
@@ -72,17 +105,31 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 30,
   },
+  inputContainer: {
+    width: '78%',
+    marginBottom: 10,
+  },
   textInput: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '78%',
     height: 50,
-    borderColor: '#d3dade',
     borderWidth: 1,
     paddingHorizontal: 15,
-    marginBottom: 10,
     borderRadius: 10,
     backgroundColor: '#fff',
+  },
+  errorText: {
+    color: '#d8363c',
+    fontSize: 12,
+    marginTop: 7,
+    marginLeft: 15,
+  },
+  successText: {
+    color: '#28a745',
+    fontSize: 12,
+    marginTop: 7,
+    marginLeft: 15,
+    fontFamily: 'CustomFont-Medium',
   },
   resetButton: {
     backgroundColor: '#121e2a',

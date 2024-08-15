@@ -19,10 +19,13 @@
         "foregroundImage": "./assets/images/BeyazS4E.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.yourappname.S4E" 
+      "package": "com.yourappname.S4E"
     },
     "web": {
       "favicon": "./assets/images/BeyazS4E.png"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
